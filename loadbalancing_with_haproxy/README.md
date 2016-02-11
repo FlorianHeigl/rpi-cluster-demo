@@ -1,4 +1,4 @@
-Loadbalancing with HAproxy
+Ladbalancing with HAproxy
 ==========================
 
 This use case is about to use HAproxy as loadbalancer for several webservers.
@@ -11,7 +11,14 @@ Thus, HAproxy always automatically knows about all available webservers and will
 Let's do it step by step
 ------------------------
 
-- Login via SSH to the master node of your cluster.
+- Make sure that the hostname of the cluster's master node is called `master`. To do so, use our [flash tool](https://github.com/hypriot/flash) to define the hostname when flashing the SD card.
+- Login via SSH to all nodes of your cluster and make sure you have the latest Docker tools installed:
+```
+sudo apt-get update && sudo apt-get upgrade 
+```
+When you are asked for updating the Docker config file or not, type `N` and finally reboot.
+
+- Login via SSH to the master node, e.g. the node with hostname `master`
 - Checkout this repository:
 
 ```
@@ -21,29 +28,18 @@ git clone https://github.com/hypriot/rpi-cluster-demo.git
 - Setup Haproxy, consul-template and registrator:
 
 ```
-docker-compose -p infrastructure -f loadbalancing-infrastructure.yml up -d
+docker-compose up -d
 ```
 
-- Create a new Docker overlay network
+This creates all necessary services and also start one webservers 
 
+- Now spin up some webservers 
+ 
 ```
-docker network create --driver overlay apps
-```
-
-- Start some webservers, distributed on cluster nodes:
-
-```
-docker-compose --x-networking --x-network-driver overlay -p apps -f loadbalancing-applications.yml scale demo-hostname=X
+DOCKER_HOST=tcp://192.168.200.1:2378 docker-compose scale demo-hostname=2
 ```
 
 with `X` as the number of webservers. Note that as of today the Docker daemon can only handle up to 30 containers on one Raspberry Pi by default. Thus `X` should be 30 times the number of your RPis at max.
-
-- Connect HAproxy to overlay network and restart it
-
-```
-docker network connect apps infrastructure_haproxy_1
-docker restart infrastructure_haproxy_1
-```
 
 To test this step, you can have a look inside the HAproxy container to see if it got two network interfaces. These will be shown at the end of the following command:
 
@@ -56,7 +52,7 @@ docker inspect infrastructure_haproxy_1
 
 Additional commands
 --------------------
-- Set environment variables for Swarm:
+- Permanently set environment variables for Swarm:
 
   `export DOCKER_HOST=tcp://192.168.200.1:2378`
 
@@ -68,10 +64,8 @@ Additional commands
 Reset your environment
 ----------------------
 
-Execute the following command in the folder in which the *.yml* files reside:
+Execute the following command in the folder in which the *.yml* files resides:
 ```
-docker-compose -f loadbalancing-applications.yml kill && \
-docker-compose -f loadbalancing-applications.yml rm -f && \
-docker-compose -f loadbalancing-infrastructure.yml kill && \
-docker-compose -f loadbalancing-infrastructure.yml rm -f
+DOCKER_HOST=tcp://192.168.200.1:2378 docker-compose down
 ```
+
