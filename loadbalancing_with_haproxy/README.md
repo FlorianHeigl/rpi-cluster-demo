@@ -18,32 +18,20 @@ Let's do it step by step
 git clone https://github.com/hypriot/rpi-cluster-demo.git
 ```
 
-- Setup Haproxy, consul-template and registrator:
+- Setup everything:
 
 ```
-docker-compose -p infrastructure -f loadbalancing-infrastructure.yml up -d
+docker-compose -p lb up -d
 ```
 
-- Create a new Docker overlay network
+- Start some more webservers
 
 ```
-docker network create --driver overlay apps
-```
-
-- Start some webservers, distributed on cluster nodes:
-
-```
-docker-compose --x-networking --x-network-driver overlay -p apps -f loadbalancing-applications.yml scale demo-hostname=X
+docker-compose -p lb scale demowebserver=X
 ```
 
 with `X` as the number of webservers. Note that as of today the Docker daemon can only handle up to 30 containers on one Raspberry Pi by default. Thus `X` should be 30 times the number of your RPis at max.
 
-- Connect HAproxy to overlay network and restart it
-
-```
-docker network connect apps infrastructure_haproxy_1
-docker restart infrastructure_haproxy_1
-```
 
 To test this step, you can have a look inside the HAproxy container to see if it got two network interfaces. These will be shown at the end of the following command:
 
@@ -70,8 +58,6 @@ Reset your environment
 
 Execute the following command in the folder in which the *.yml* files reside:
 ```
-docker-compose -f loadbalancing-applications.yml kill && \
-docker-compose -f loadbalancing-applications.yml rm -f && \
-docker-compose -f loadbalancing-infrastructure.yml kill && \
-docker-compose -f loadbalancing-infrastructure.yml rm -f
+docker-compose -p lb kill && \
+docker-compose -p lb rm -f 
 ```
