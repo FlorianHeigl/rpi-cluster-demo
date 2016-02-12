@@ -11,7 +11,7 @@ Thus, HAproxy always automatically knows about all available webservers and will
 Let's do it step by step
 ------------------------
 
-- Login via SSH to the master node of your cluster.
+- Login via SSH to the master node of your cluster with user `pi` and password `raspberry`.
 - Checkout this repository:
 
 ```
