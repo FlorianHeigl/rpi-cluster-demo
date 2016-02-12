@@ -7,16 +7,18 @@ version: '2'
 
 services:
   swarmregistrator:
-    image: gliderlabs/registrator
-    networks:
-      - apps 
+    image: gliderlabs/registrator:master
     environment:
       - constraint:node==ktr-omega
       - DOCKER_HOST=tcp://192.168.8.50:2378
-    command: -internal -ttl 15 -ttl-refresh 5 consul://192.168.8.50:8500
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - apps
+    command: -internal -cleanup -ttl 15 -ttl-refresh 5 consul://192.168.8.50:8500
 
   consultemplate:
-    image: kuzzleio/consul-template
+    image: c12e/consul-template 
     depends_on:
       - haproxy
     volumes:
@@ -26,26 +28,30 @@ services:
     environment:
       - constraint:node==ktr-omega
       - DOCKER_HOST=tcp://192.168.8.50:2378
-    command: -consul 192.168.8.50:8500 -template "/haproxy/haproxy.ctmpl:/haproxy/haproxy.cfg:docker exec lb_haproxy_1 /haproxy-start reload"
+    command: consul-template -consul 192.168.8.50:8500 -template "/haproxy/haproxy.ctmpl:/haproxy/haproxy.cfg:docker exec lb_haproxy_1 /haproxy-start reload"
 
   haproxy:
-    image: haproxy
+    build:
+      context: $PWD/haproxy
     networks:
       - apps
-#      - outside  
     environment: 
       - constraint:node==ktr-omega
     ports:
-      - 0.0.0.0:88:80
-      - 0.0.0.0:4443:443
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
     volumes:
-      - $PWD/haproxy/:/usr/local/etc/haproxy/
+      - $PWD/haproxy:/haproxy-override
 
   demowebserver:
     build:
       context: $PWD/demowebserver
+    depends_on:
+      - consultemplate
     networks:
       - apps
+#    environment:
+#      - constraint:node!=ktr-omega
 
 networks:
   apps:
