@@ -16,7 +16,7 @@ services:
     command: -internal -cleanup -ttl 15 -ttl-refresh 5 consul://192.168.200.1:8500
   
   consultemplate:
-    image: whatever4711/rpi-consul-template
+    image: hypriot/rpi-consul-template
     depends_on:
       - haproxy 
     environment:
