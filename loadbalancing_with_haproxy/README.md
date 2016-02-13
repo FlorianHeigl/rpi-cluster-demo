@@ -18,7 +18,8 @@ sudo apt-get update && sudo apt-get upgrade
 ```
 When you are asked for updating the Docker config file or not, type `N` and finally reboot.
 
-- Login via SSH to the master node, e.g. the node with hostname `master`
+- Login via SSH to the master node of your cluster, e.g. the node with hostname `master`, with user `pi` and password `raspberry`.
+
 - Checkout this repository:
 
 ```
