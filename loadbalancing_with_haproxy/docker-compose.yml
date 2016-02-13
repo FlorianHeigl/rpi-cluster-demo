@@ -1,10 +1,8 @@
-#
-# start swarm-registrator
-# start consul template
-# start haproxy
-#
 version: '2'
 
+#
+# infrastructure services
+#
 services:
   swarmregistrator:
     image: hypriot/rpi-registrator:master
@@ -41,22 +39,24 @@ services:
       - "0.0.0.0:443:443"
     volumes:
       - ./haproxy/:/haproxy-override/
-  
-  #
-  # scale mini webserver
-  #
-  
-  hypriot-website:
-    image: hypriot/rpi-busybox-httpd
-    depends_on:
-      - consultemplate 
-    networks:
-      - apps
+ 
+#
+# two different websites to scale up
+#
+ 
+#  hypriot-website:
+#    image: hypriot/rpi-busybox-httpd
+#    depends_on:
+#      - consultemplate 
+#   networks:
+#      - apps
   
   demo-hostname:
     image: firecyberice/armhf-demowebserver:hostname
     depends_on:
       - consultemplate 
+    environment:
+      - constraint:node!=master
     networks:
       - apps
 

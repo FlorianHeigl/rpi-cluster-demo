@@ -1,4 +1,4 @@
-Loadbalancing with HAproxy
+Ladbalancing with HAproxy
 ==========================
 
 This use case is about to use HAproxy as loadbalancer for several webservers.
@@ -11,11 +11,24 @@ Thus, HAproxy always automatically knows about all available webservers and will
 Let's do it step by step
 ------------------------
 
-- Login via SSH to the master node of your cluster.
+- Make sure that the hostname of the cluster's master node is called `master`. To do so, use our [flash tool](https://github.com/hypriot/flash) to define the hostname when flashing the SD card.
+- Login via SSH to all nodes of your cluster and make sure you have the latest Docker tools installed:
+```
+sudo apt-get update && sudo apt-get upgrade 
+```
+When you are asked for updating the Docker config file or not, type `N` and finally reboot.
+
+- Login via SSH to the master node, e.g. the node with hostname `master`
 - Checkout this repository:
 
 ```
 git clone https://github.com/hypriot/rpi-cluster-demo.git
+```
+
+- Change to subfolder of this demo
+
+```
+cd rpi-cluster-demo/loadbalancing_with_haproxy
 ```
 
 - Setup Haproxy, consul-template and registrator:
@@ -24,21 +37,35 @@ git clone https://github.com/hypriot/rpi-cluster-demo.git
 docker-compose -p loadbalancing up -d
 ```
 
-- Start some webservers, distributed on cluster nodes:
+This creates all necessary services and also start one webservers 
 
+- Now spin up some webservers 
+ 
 ```
+<<<<<<< HEAD
 docker-compose -p loadbalancing scale demo-hostname=X
+=======
+DOCKER_HOST=tcp://192.168.200.1:2378 docker-compose scale demo-hostname=2
+>>>>>>> update_to_compose_file_2-0
 ```
 
 with `X` as the number of webservers. Note that as of today the Docker daemon can only handle up to 30 containers on one Raspberry Pi by default. Thus `X` should be 30 times the number of your RPis at max.
 
+<<<<<<< HEAD
+=======
+To test this step, you can have a look inside the HAproxy container to see if it got two network interfaces. These will be shown at the end of the following command:
+
+```
+docker inspect infrastructure_haproxy_1
+```
+>>>>>>> update_to_compose_file_2-0
 
 - Open browser at IP of master node and restart page. Every page should show a new website with a new hostname because HAproxy is configured to follow the **round-robin** strategy. Thus, for every incoming HTTP request HAproxy forwards each request to a new node.
 
 
 Additional commands
 --------------------
-- Set environment variables for Swarm:
+- Permanently set environment variables for Swarm:
 
   `export DOCKER_HOST=tcp://192.168.200.1:2378`
 
@@ -50,8 +77,13 @@ Additional commands
 Reset your environment
 ----------------------
 
-Execute the following command in the folder in which the *.yml* files reside:
+Execute the following command in the folder in which the *.yml* files resides:
 ```
+<<<<<<< HEAD
 docker-compose -p loadbalancing kill && \
 docker-compose -p loadbalancing rm -f 
+=======
+DOCKER_HOST=tcp://192.168.200.1:2378 docker-compose down
+>>>>>>> update_to_compose_file_2-0
 ```
+
