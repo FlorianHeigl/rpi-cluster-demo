@@ -25,6 +25,12 @@ When you are asked for updating the Docker config file or not, type `N` and fina
 git clone https://github.com/hypriot/rpi-cluster-demo.git
 ```
 
+- Change to subfolder of this demo
+
+```
+cd rpi-cluster-demo/loadbalancing_with_haproxy
+```
+
 - Setup Haproxy, consul-template and registrator:
 
 ```
