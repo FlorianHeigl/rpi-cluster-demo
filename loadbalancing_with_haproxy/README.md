@@ -1,4 +1,4 @@
-Ladbalancing with HAproxy
+Loadbalancing with HAproxy
 ==========================
 
 This use case is about to use HAproxy as loadbalancer for several webservers.
